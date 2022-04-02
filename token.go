@@ -8,24 +8,29 @@ import (
 	"github.com/m-mizutani/goerr"
 )
 
-func WithJwtHandler(issuer, secret string, expiresAfter time.Duration) Option {
+func WithJwtExpiresIn(expiresIn time.Duration) Option {
 	return func(n *Middleware) error {
-		n.jwt = newJwtHandler(issuer, tokenSecret(secret), expiresAfter)
+		n.jwt.expiresIn = expiresIn
+		return nil
+	}
+}
+
+func WithJwtSecret(secret string) Option {
+	return func(n *Middleware) error {
+		n.jwt.secret = tokenSecret(secret)
 		return nil
 	}
 }
 
 type jwtHandler struct {
-	issuer       string
-	secret       tokenSecret
-	expiresAfter time.Duration
+	secret    tokenSecret
+	expiresIn time.Duration
 }
 
-func newJwtHandler(issuer string, secret tokenSecret, expiresAfter time.Duration) *jwtHandler {
+func newJwtHandler(secret tokenSecret, expiresIn time.Duration) *jwtHandler {
 	return &jwtHandler{
-		issuer:       issuer,
-		secret:       secret,
-		expiresAfter: expiresAfter,
+		secret:    secret,
+		expiresIn: expiresIn,
 	}
 }
 
@@ -38,10 +43,10 @@ func (x *jwtHandler) signToken(user *User, now time.Time) (string, error) {
 	claims := jwtClaims{
 		User: *user,
 		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    x.issuer,
+			Issuer:    "gauth",
 			Subject:   string(user.Provider) + ":" + user.ID,
 			IssuedAt:  jwt.NewNumericDate(now),
-			ExpiresAt: jwt.NewNumericDate(now.Add(x.expiresAfter)),
+			ExpiresAt: jwt.NewNumericDate(now.Add(x.expiresIn)),
 		},
 	}
 

@@ -22,11 +22,8 @@ func main() {
 			os.Getenv("GOOGLE_OAUTH_CLIENT_SECRET"),
 			os.Getenv("GOOGLE_OAUTH_CLIENT_CALLBACK_URI"),
 		),
-		gauth.WithJwtHandler(
-			os.Getenv("JWT_ISSUER_NAME"),
-			os.Getenv("JWT_SECRET"),
-			time.Hour*24,
-		),
+		gauth.WithJwtSecret(os.Getenv("JWT_SECRET")),
+		gauth.WithJwtExpiresIn(time.Hour*24),
 		gauth.WithPolicy(gauth.AllowedAll()),
 	))
 

@@ -33,7 +33,7 @@ func New(options ...Option) func(http.Handler) http.Handler {
 func NewWithError(options ...Option) (func(http.Handler) http.Handler, error) {
 	n := &Middleware{
 		newOAuth2: newOAuth2,
-		jwt:       newJwtHandler(randomToken(32), tokenSecret(randomToken(32)), time.Hour*24),
+		jwt:       newJwtHandler(tokenSecret(randomToken(32)), time.Hour*24),
 		now:       time.Now,
 	}
 
